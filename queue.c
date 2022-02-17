@@ -1,9 +1,9 @@
+#include "queue.h"
+#include <list.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "harness.h"
-#include "queue.h"
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
@@ -17,7 +17,13 @@
  */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *p = malloc(sizeof(struct list_head));
+    // allocate space fail, return null
+    if (p == NULL)
+        return NULL;
+    // init pointer
+    INIT_LIST_HEAD(p);
+    return p;
 }
 
 /* Free all storage used by queue */
@@ -32,6 +38,21 @@ void q_free(struct list_head *l) {}
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    // create new node and assign value to it
+    element_t *newNode = malloc(sizeof(element_t));
+
+    if (newNode == NULL)
+        return false;
+
+    INIT_LIST_HEAD(&(newNode->list));
+    newNode->value = strdup(s);
+
+    if (newNode->value == NULL) {
+        free(newNode->value);
+        return false;
+    }
+
+    list_add_tail(&newNode->list, head);
     return true;
 }
 
@@ -44,6 +65,21 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    // create new node and assign value to it
+    element_t *newNode = malloc(sizeof(element_t));
+
+    if (newNode == NULL)
+        return false;
+
+    INIT_LIST_HEAD(&(newNode->list));
+    newNode->value = strdup(s);
+
+    if (newNode->value == NULL) {
+        free(newNode->value);
+        return false;
+    }
+
+    list_add(&newNode->list, head);
     return true;
 }
 
