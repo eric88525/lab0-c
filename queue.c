@@ -116,7 +116,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
     element_t *p = list_first_entry(head, element_t, list);
 
-    list_del(&(p->list));
+    list_del_init(&(p->list));
 
     if (sp) {
         strncpy(sp, p->value, bufsize - 1);
@@ -166,8 +166,9 @@ int q_size(struct list_head *head)
         return 0;
 
     int size = 0;
-    element_t *p = NULL;
-    list_for_each_entry (p, head, list)
+    struct list_head *p = NULL;
+
+    list_for_each (p, head)
         size++;
     return size;
 }
@@ -193,7 +194,7 @@ bool q_delete_mid(struct list_head *head)
         p = &(*p)->next;
     }
     struct list_head *deleteNode = (*p);
-    list_del(deleteNode);
+    list_del_init(deleteNode);
 
     q_release_element(container_of(deleteNode, element_t, list));
     return true;
@@ -231,7 +232,18 @@ void q_swap(struct list_head *head)
  */
 void q_reverse(struct list_head *head)
 {
-    return;
+    if (!head || list_empty(head))
+        return;
+
+    struct list_head *prev = head->prev, *curr = head, *next = NULL;
+
+    while (next != head) {
+        next = curr->next;
+        curr->next = prev;
+        curr->prev = next;
+        prev = curr;
+        curr = next;
+    }
 }
 
 /*
