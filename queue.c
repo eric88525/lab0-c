@@ -223,16 +223,13 @@ void q_swap(struct list_head *head)
     if (!head || list_empty(head))
         return;
 
-    struct list_head *nextNode = NULL;
-    struct list_head *prevNode = head;
     struct list_head *currNode = head->next;
-
+    struct list_head *nextNode = NULL;
     while (currNode && currNode->next && currNode != head &&
            currNode->next != head) {
         nextNode = currNode->next;
         list_del(nextNode);
-        list_add(nextNode, prevNode);
-        prevNode = currNode;
+        list_add_tail(nextNode, currNode);
         currNode = currNode->next;
     }
 }
