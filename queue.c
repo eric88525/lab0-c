@@ -328,7 +328,7 @@ struct list_head *merge_sort(struct list_head *head)
  */
 void q_sort(struct list_head *head)
 {
-    if (!head || !head->next)
+    if (!head || list_empty(head))
         return;
 
     struct list_head *lastNode = head->prev;
