@@ -6,6 +6,10 @@
 #include <string.h>
 #include "harness.h"
 
+// q_sort relative functions
+struct list_head *merge_sort(struct list_head *head);
+struct list_head *merge(struct list_head *L1, struct list_head *L2);
+
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
  * but some of them cannot occur. You can suppress them by adding the
  * following line.
