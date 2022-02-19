@@ -34,9 +34,8 @@ void q_free(struct list_head *l)
         return;
     element_t *pos = NULL, *n = NULL;
     list_for_each_entry_safe (pos, n, l, list)
-        // cppcheck-suppress nullPointer
         q_release_element(pos);
-    // cppcheck-suppress nullPointer
+
     free(l);
 }
 
@@ -212,7 +211,29 @@ bool q_delete_mid(struct list_head *head)
  */
 bool q_delete_dup(struct list_head *head)
 {
-    return false;
+    if (!head || list_empty(head))
+        return false;
+
+    struct list_head **p = &(head->next);
+    struct list_head *curr = head->next, *prev = NULL;
+
+    while (curr != head && curr->next != head) {
+        if (strcmp(container_of(curr, element_t, list)->value,
+                   container_of(curr->next, element_t, list)->value) == 0) {
+            do {
+                prev = curr;
+                curr = curr->next;
+                list_del(prev);
+                q_release_element(container_of(prev, element_t, list));
+            } while (curr->next != head &&
+                     strcmp(container_of(curr, element_t, list)->value,
+                            container_of(curr->next, element_t, list)->value) ==
+                         0);
+        }
+        p = &((*p)->next);
+        curr = curr->next;
+    }
+    return true;
 }
 
 /*
