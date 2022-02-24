@@ -55,18 +55,18 @@ bool q_insert_head(struct list_head *head, char *s)
     if (!head)
         return false;
     // create new node and assign value to it
-    element_t *newNode = malloc(sizeof(element_t));
+    element_t *new_node = malloc(sizeof(element_t));
 
-    if (!newNode)
+    if (!new_node)
         return false;
 
-    newNode->value = strdup(s);
+    new_node->value = strdup(s);
 
-    if (!newNode->value) {
-        q_release_element(newNode);
+    if (!new_node->value) {
+        q_release_element(new_node);
         return false;
     }
-    list_add(&newNode->list, head);
+    list_add(&new_node->list, head);
     return true;
 }
 
@@ -82,18 +82,18 @@ bool q_insert_tail(struct list_head *head, char *s)
     if (!s || !head)
         return false;
     // create new node and assign value to it
-    element_t *newNode = malloc(sizeof(element_t));
+    element_t *new_node = malloc(sizeof(element_t));
 
-    if (!newNode)
+    if (!new_node)
         return false;
 
-    newNode->value = strdup(s);
+    new_node->value = strdup(s);
 
-    if (!newNode->value) {
-        q_release_element(newNode);
+    if (!new_node->value) {
+        q_release_element(new_node);
         return false;
     }
-    list_add_tail(&newNode->list, head);
+    list_add_tail(&new_node->list, head);
     return true;
 }
 
@@ -194,10 +194,10 @@ bool q_delete_mid(struct list_head *head)
          fast != head && fast->next != head; fast = fast->next->next)
         p = &(*p)->next;
 
-    struct list_head *deleteNode = (*p);
-    list_del_init(deleteNode);
+    struct list_head *to_delete = (*p);
+    list_del_init(to_delete);
 
-    q_release_element(container_of(deleteNode, element_t, list));
+    q_release_element(container_of(to_delete, element_t, list));
     return true;
 }
 
@@ -282,21 +282,21 @@ void q_reverse(struct list_head *head)
 struct list_head *merge(struct list_head *L1, struct list_head *L2)
 {
     struct list_head *head = NULL, **ptr = &head, **node = NULL;
-    struct list_head *prevNode = NULL;
+    struct list_head *prev_node = NULL;
 
-    for (node = NULL; L1 && L2; prevNode = *node, *node = (*node)->next) {
+    for (node = NULL; L1 && L2; prev_node = *node, *node = (*node)->next) {
         // let node point to smaller node pointer(L1/L2)
         node = strcmp(container_of(L1, element_t, list)->value,
                       container_of(L2, element_t, list)->value) > 0
                    ? &L2
                    : &L1;
         *ptr = *node;
-        (*node)->prev = prevNode;
+        (*node)->prev = prev_node;
         ptr = &(*ptr)->next;
     }
     *node = (struct list_head *) ((uintptr_t) L1 | (uintptr_t) L2);
     *ptr = *node;
-    (*node)->prev = prevNode;
+    (*node)->prev = prev_node;
     return head;
 }
 
@@ -332,9 +332,9 @@ void q_sort(struct list_head *head)
     if (!head || list_empty(head))
         return;
 
-    struct list_head *lastNode = head->prev;
+    struct list_head *last_node = head->prev;
 
-    lastNode->next = NULL;
+    last_node->next = NULL;
     head->next->prev = NULL;
 
     struct list_head *sorted_list = merge_sort(head->next);
@@ -344,11 +344,11 @@ void q_sort(struct list_head *head)
     head->next = sorted_list;
     sorted_list->prev = head;
 
-    // move lastNode pointer to
-    for (lastNode = sorted_list; lastNode->next != NULL;
-         lastNode = lastNode->next) {
+    // move last_node pointer to
+    for (last_node = sorted_list; last_node->next != NULL;
+         last_node = last_node->next) {
     }
 
-    head->prev = lastNode;
-    lastNode->next = head;
+    head->prev = last_node;
+    last_node->next = head;
 }
