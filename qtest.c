@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include "dudect/fixture.h"
 #include "list.h"
+#include "list_sort.h"
+
 
 /* Our program needs to use regular malloc/free */
 #define INTERNAL 1
@@ -597,10 +599,19 @@ static bool do_size(int argc, char *argv[])
     return ok && !error_check();
 }
 
+// the compare function of element_t compare
+int compare_element_t(void *priv,
+                      const struct list_head *l,
+                      const struct list_head *r)
+{
+    return strcmp(container_of(l, element_t, list)->value,
+                  container_of(r, element_t, list)->value);
+}
+
 bool do_sort(int argc, char *argv[])
 {
-    if (argc != 1) {
-        report(1, "%s takes no arguments", argv[0]);
+    if (argc > 2) {
+        report(1, "%s takes <=2 arguments", argv[0]);
         return false;
     }
 
@@ -614,8 +625,15 @@ bool do_sort(int argc, char *argv[])
     error_check();
 
     set_noallocate_mode(true);
-    if (exception_setup(true))
-        q_sort(l_meta.l);
+
+    if (exception_setup(true)) {
+        if (argc == 2 && !strcmp(argv[1], "linux")) {
+            list_sort(NULL, l_meta.l, compare_element_t);
+        } else {
+            q_sort(l_meta.l);
+        }
+    }
+
     exception_cancel();
     set_noallocate_mode(false);
 
@@ -835,6 +853,7 @@ static void console_init()
     ADD_COMMAND(swap,
                 "                | Swap every two adjacent nodes in queue");
     ADD_COMMAND(shuffle, "                | Shuffle every nodes in queue");
+
     add_param("length", &string_length, "Maximum length of displayed string",
               NULL);
     add_param("malloc", &fail_probability, "Malloc failure probability percent",

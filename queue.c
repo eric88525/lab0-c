@@ -281,21 +281,18 @@ void q_reverse(struct list_head *head)
 struct list_head *merge(struct list_head *L1, struct list_head *L2)
 {
     struct list_head *head = NULL, **ptr = &head, **node = NULL;
-    struct list_head *prev_node = NULL;
 
-    for (node = NULL; L1 && L2; prev_node = *node, *node = (*node)->next) {
+    for (node = NULL; L1 && L2; *node = (*node)->next) {
         // let node point to smaller node pointer(L1/L2)
         node = strcmp(container_of(L1, element_t, list)->value,
                       container_of(L2, element_t, list)->value) > 0
                    ? &L2
                    : &L1;
         *ptr = *node;
-        (*node)->prev = prev_node;
         ptr = &(*ptr)->next;
     }
     *node = (struct list_head *) ((uintptr_t) L1 | (uintptr_t) L2);
     *ptr = *node;
-    (*node)->prev = prev_node;
     return head;
 }
 
@@ -331,23 +328,20 @@ void q_sort(struct list_head *head)
     if (!head || list_empty(head))
         return;
 
-    struct list_head *last_node = head->prev;
-
-    last_node->next = NULL;
+    head->prev->next = NULL;
     head->next->prev = NULL;
 
-    struct list_head *sorted_list = merge_sort(head->next);
+    head->next = merge_sort(head->next);
 
-    INIT_LIST_HEAD(head);
+    struct list_head *prev = head;
+    struct list_head *curr = head->next;
 
-    head->next = sorted_list;
-    sorted_list->prev = head;
-
-    // move last_node pointer to
-    for (last_node = sorted_list; last_node->next != NULL;
-         last_node = last_node->next) {
+    while (curr) {
+        curr->prev = prev;
+        prev = curr;
+        curr = curr->next;
     }
 
-    head->prev = last_node;
-    last_node->next = head;
+    head->prev = prev;
+    prev->next = head;
 }
